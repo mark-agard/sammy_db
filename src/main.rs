@@ -1,54 +1,89 @@
-#[derive(Debug)]
+use std::fs::File;
+use std::io::Write;
+
 struct Book {
     title: String,
     author: String,
-    year: i16,
+    year: String, //making this a string- I need to figure out how to handle non-string data
 }
 
-fn add_book(title: &str, author: &str, year: i16) -> Book {
-    Book {
-        title: title.to_string(),
-        author: author.to_string(),
-        year: year,
+impl Book{
+    fn fields(&self) -> Vec<&str> {
+        vec![&self.title, &self.author, &self.year]
+    }
+    fn new(title: &str, author: &str, year: &str) -> Book {
+        Book {
+            title: title.to_string(),
+            author: author.to_string(),
+            year: year.to_string(),
+        }
     }
 }
 
-fn book_to_binary(book: &Book) -> Vec<u8> {
-    let mut binary = Vec::new();
-    binary.extend_from_slice(book.title.as_bytes());
-    binary.push(0); // null terminator
-    binary.extend_from_slice(book.author.as_bytes());
-    binary.push(0); // null terminator
-    binary.extend_from_slice(&book.year.to_le_bytes());
-    binary
-}
 
-fn binary_to_book(binary: &[u8]) -> bool {
-    let binary_vec = binary.to_vec();
-    let split = binary_vec.split(|&x| x == 0).collect::<Vec<_>>();
-    
-    let title = String::from_utf8(split[0].to_vec()).unwrap();
-    let author = String::from_utf8(split[1].to_vec()).unwrap();
-    let year = i16::from_le_bytes([split[2][0], split[2][1]]);
-    
-    println!("title: {}", title);
-    println!("author: {}", author);
-    println!("year: {}", year);
-
+fn read(path: &str) -> bool {
+    let content: Vec<u8> = std::fs::read(path).unwrap();
+    for line in content.split(|&b| b == b'\n') {
+        println!("{}", std::str::from_utf8(line).unwrap());
+    }
     true
 }
-fn main() {
-    let b1 = add_book("Crime and Punishment", "Fyodor Dostoevsky", 1866);
-    let b2 = add_book("The Plague", "Albert Camus", 1947);
 
-    let books = vec![b1, b2];
-    
-    for book in books {
-        println!("{} by {} ({})", book.title, book.author, book.year);
-        let book2binary = book_to_binary(&book);
-        println!("Book to Binary: {:?}", book2binary);
-        let binary2book = binary_to_book(&book2binary);
-        println!("Binary to Book: {:?}", binary2book);
+fn write(data: &[Book]) -> bool {
+    let mut binary = Vec::new();
+    for (index, book) in data.iter().enumerate() {
+        for field in book.fields() {
+            binary.extend_from_slice(field.as_bytes());
+            binary.push(b' '); // null terminator
+        } 
+        if index < data.len() - 1 {
+            binary.push(b'\n'); // newline terminator
+        }
     }
+    let mut file = File::create(format!("books.bin")).unwrap();
+    file.write_all(&binary).unwrap();
     
+    true
+
+
+}
+fn main() {
+    loop {
+        println!("Welcome to SammyDB\n1. Add Books\n2. List Books\n3. Exit");
+        let mut input = String::new();
+        std::io::stdin().read_line(&mut input).unwrap();
+        let input = input.trim();
+        match input {
+            "1" => {
+                println!("How many books do you want to add?");
+                let mut count = String::new();
+                std::io::stdin().read_line(&mut count).unwrap();
+                let count = count.trim().parse::<usize>().unwrap();
+                let mut books = Vec::new();
+                
+                for _ in 0..count {
+                    println!("Enter title:");
+                    let mut title = String::new();
+                    std::io::stdin().read_line(&mut title).unwrap();
+                    println!("Enter author:");
+                    let mut author = String::new();
+                    std::io::stdin().read_line(&mut author).unwrap();
+                    println!("Enter year:");
+                    let mut year = String::new();
+                    std::io::stdin().read_line(&mut year).unwrap();
+                    books.push(Book::new(title.trim(), author.trim(), year.trim()));
+                }
+                write(&books);
+            }
+            "2" => {
+                read("books.bin");
+            }
+            "3" => {
+                break;
+            }
+            _ => {
+                println!("Invalid input");
+            }
+        }
+    }
 }
