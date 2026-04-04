@@ -1,25 +1,6 @@
 use std::fs::File;
 use std::io::Write;
-
-struct Book {
-    title: String,
-    author: String,
-    year: String, //making this a string- I need to figure out how to handle non-string data
-}
-
-impl Book{
-    fn fields(&self) -> Vec<&str> {
-        vec![&self.title, &self.author, &self.year]
-    }
-    fn new(title: &str, author: &str, year: &str) -> Book {
-        Book {
-            title: title.to_string(),
-            author: author.to_string(),
-            year: year.to_string(),
-        }
-    }
-}
-
+mod schema;
 
 fn read(path: &str) -> bool {
     let content: Vec<u8> = std::fs::read(path).unwrap();
@@ -28,7 +9,17 @@ fn read(path: &str) -> bool {
     }
     true
 }
+// this creates a table with a schema file and no data files
+fn create_table(schema: schema::Schema) -> bool { 
+    // Create dir for all table files
+    std::fs::create_dir_all(schema.name).unwrap();
 
+    // Create schema file
+    schema.make_file();
+    true
+}
+
+/*
 fn write(data: &[Book]) -> bool {
     let mut binary = Vec::new();
     for (index, book) in data.iter().enumerate() {
@@ -44,46 +35,20 @@ fn write(data: &[Book]) -> bool {
     file.write_all(&binary).unwrap();
     
     true
-
-
 }
+*/
+
 fn main() {
-    loop {
-        println!("Welcome to SammyDB\n1. Add Books\n2. List Books\n3. Exit");
-        let mut input = String::new();
-        std::io::stdin().read_line(&mut input).unwrap();
-        let input = input.trim();
-        match input {
-            "1" => {
-                println!("How many books do you want to add?");
-                let mut count = String::new();
-                std::io::stdin().read_line(&mut count).unwrap();
-                let count = count.trim().parse::<usize>().unwrap();
-                let mut books = Vec::new();
-                
-                for _ in 0..count {
-                    println!("Enter title:");
-                    let mut title = String::new();
-                    std::io::stdin().read_line(&mut title).unwrap();
-                    println!("Enter author:");
-                    let mut author = String::new();
-                    std::io::stdin().read_line(&mut author).unwrap();
-                    println!("Enter year:");
-                    let mut year = String::new();
-                    std::io::stdin().read_line(&mut year).unwrap();
-                    books.push(Book::new(title.trim(), author.trim(), year.trim()));
-                }
-                write(&books);
-            }
-            "2" => {
-                read("books.bin");
-            }
-            "3" => {
-                break;
-            }
-            _ => {
-                println!("Invalid input");
-            }
-        }
-    }
+    
+    let mut schema = schema::Schema::new("books", vec![]);
+
+    let title = schema::Field::new("Title".to_string(), "string".to_string(), 100);
+    let author = schema::Field::new("Author".to_string(), "string".to_string(), 100);
+    let year = schema::Field::new("Year".to_string(), "i16".to_string(), 2);
+    
+    schema.fields.push(title);
+    schema.fields.push(author);
+    schema.fields.push(year);
+    
+    create_table(schema);
 }
