@@ -1,22 +1,7 @@
 use std::fs::File;
 use std::io::Write;
 
-pub struct Field {
-    pub name: String,
-    pub type_: String,
-    pub length: usize,
-
-}
-
-impl Field {
-    pub fn new(name: String, type_: String, length: usize) -> Field {
-        Field {
-            name,
-            type_,
-            length
-        }
-    }
-}
+use crate::field::Field;
 
 pub struct Schema {
     pub name: &'static str,
@@ -31,8 +16,7 @@ impl Schema {
         }
     }
 
-
-    
+    // this should probably not use newlines. should be properly written to binary
     pub fn make_file(&self) -> bool {
         let mut file = File::create(format!("{}/schema", self.name)).unwrap();
         // in my heart this for loop should not exist. 
