@@ -1,26 +1,31 @@
-mod field;
-use crate::field::Field;
 
-mod schema;
-use crate::schema::Schema;
+
 
 mod table;
-use crate::table::create_table;
+use crate::table::Table;
+use crate::table::Schema;
 
-
-
+use std::collections::HashMap;
+use std::path::Path;
 
 fn main() {
     
-    let mut schema = Schema::new("books", vec![]);
+    let fields = vec![
+        HashMap::from([
+            (String::from("name"), String::from("Title")), 
+            (String::from("type"), String::from("str"))]),
 
-    let title = Field::new("Title".to_string(), "string".to_string(), 100);
-    let author = Field::new("Author".to_string(), "string".to_string(), 100);
-    let year = Field::new("Year".to_string(), "i16".to_string(), 2);
+        HashMap::from([
+            (String::from("name"), String::from("Author")), 
+            (String::from("type"), String::from("str"))]),
+            
+        HashMap::from([
+            (String::from("name"), String::from("Year")), 
+            (String::from("type"), String::from("i16"))]),
+    ];
     
-    schema.fields.push(title);
-    schema.fields.push(author);
-    schema.fields.push(year);
-    
-    create_table(schema);
+    let schema = Schema::new(fields);
+    let path = Path::new("test");
+
+    Table::new(path, schema);
 }
