@@ -9,11 +9,15 @@ use std::collections::HashMap;
 use std::path::Path;
 
 fn main() {
+<<<<<<< HEAD
     // set path (used in all scopes)
     let path = Path::new("test");
      
     // Scope 1: Make a table
     {
+=======
+    
+>>>>>>> 96ca6c2154e8869eecf1cd309fdd7fb39bf05737
     let fields = vec![
         HashMap::from([
             (String::from("name"), String::from("Title")), 
@@ -29,6 +33,7 @@ fn main() {
     ];
     
     let schema = Schema::new(fields);
+<<<<<<< HEAD
     Table::new("test", path, schema);
     }
 
@@ -95,4 +100,9 @@ fn main() {
         }
         println!();
     }
+=======
+    let path = Path::new("test");
+
+    Table::new(path, schema);
+>>>>>>> 96ca6c2154e8869eecf1cd309fdd7fb39bf05737
 }
