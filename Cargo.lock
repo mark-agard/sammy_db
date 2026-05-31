@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "SammyDB"
-version = "0.1.0"
+name = "redhare"
+version = "0.2.0"

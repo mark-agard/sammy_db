@@ -1,6 +1,9 @@
 [package]
-name = "RedHare"
+name = "redhare"
 version = "0.2.0"
 edition = "2026"
+
+[lib]
+name = "rh"
 
 [dependencies]

@@ -1,9 +1,5 @@
-mod table;
-use crate::table::Table;
-use crate::table::Schema;
-
-mod database;
-use crate::database::Database;
+use rh::table::{Table, Schema};
+use rh::database::Database;
 
 use std::collections::HashMap;
 use std::path::Path;
@@ -29,9 +25,7 @@ fn main() {
     ];
     
     let schema = Schema::new(fields);
-    
-    let table = db.create_table("books", schema.clone()).unwrap();
-    let table2 = db.create_table("books2", schema).unwrap();
+    let table = db.create_table("books", schema).unwrap();
     }
 
     // Scope 2: Test load functionality, append rows to table
