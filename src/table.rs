@@ -3,6 +3,7 @@ use std::io::Write;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
+#[derive(Clone)]
 pub struct Schema{
     pub fields: Vec<HashMap<String, String>>
 }

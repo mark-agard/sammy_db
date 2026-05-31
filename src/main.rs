@@ -1,23 +1,19 @@
-
-
-
 mod table;
 use crate::table::Table;
 use crate::table::Schema;
+
+mod database;
+use crate::database::Database;
 
 use std::collections::HashMap;
 use std::path::Path;
 
 fn main() {
-<<<<<<< HEAD
     // set path (used in all scopes)
-    let path = Path::new("test");
+    let db = Database::new(Path::new("mydb"));
      
     // Scope 1: Make a table
     {
-=======
-    
->>>>>>> 96ca6c2154e8869eecf1cd309fdd7fb39bf05737
     let fields = vec![
         HashMap::from([
             (String::from("name"), String::from("Title")), 
@@ -33,8 +29,9 @@ fn main() {
     ];
     
     let schema = Schema::new(fields);
-<<<<<<< HEAD
-    Table::new("test", path, schema);
+    
+    let table = db.create_table("books", schema.clone()).unwrap();
+    let table2 = db.create_table("books2", schema).unwrap();
     }
 
     // Scope 2: Test load functionality, append rows to table
@@ -45,13 +42,13 @@ fn main() {
             vec![String::from("Test Book 3"), String::from("Author 3"), String::from("2022")],
         ];
 
-        let mut table = Table::load(path).unwrap();
+        let mut table = db.load_table("books").unwrap();
         let _ = table.append_rows(rows);
     }
 
     // Scope 3: test read functionality
     {
-        let table = Table::load(path).unwrap();
+        let table = db.load_table("books").unwrap();
         let rows = table.read_rows().unwrap();
         println!("--- After append ---");
         println!("| {:<15} | {:<15} | {:<6} |", "Title", "Author", "Year");
@@ -64,14 +61,14 @@ fn main() {
 
     // Scope 4: test update functionality
     {
-        let mut table = Table::load(path).unwrap();
+        let mut table = db.load_table("books").unwrap();
         let _ = table.update_rows(vec![(1, String::from("Title"), String::from("Updated Title"))]);
     
     }
 
     // Scope 4b. Confirm updates written to disk.
     {
-        let table = Table::load(path).unwrap();
+        let table = db.load_table("books").unwrap();
         let rows = table.read_rows().unwrap();
         println!("--- After update ---");
         println!("| {:<15} | {:<15} | {:<6} |", "Title", "Author", "Year");
@@ -84,13 +81,13 @@ fn main() {
 
     // Scope 5: Test delete functionality
     {
-        let mut table = Table::load(path).unwrap();
+        let mut table = db.load_table("books").unwrap();
         let _ = table.delete_rows(vec![1]);
     }
     
     // Scope 5b. Confirm delete written to disk
     {
-        let table = Table::load(path).unwrap();
+        let table = db.load_table("books").unwrap();
         let rows = table.read_rows().unwrap();
         println!("--- After delete ---");
         println!("| {:<15} | {:<15} | {:<6} |", "Title", "Author", "Year");
@@ -100,9 +97,4 @@ fn main() {
         }
         println!();
     }
-=======
-    let path = Path::new("test");
-
-    Table::new(path, schema);
->>>>>>> 96ca6c2154e8869eecf1cd309fdd7fb39bf05737
 }
