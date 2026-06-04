@@ -10,11 +10,11 @@ pub struct Schema{
 
 impl Schema {
     // I would like to do input cleaning here
-    pub fn new(fields: Vec<HashMap<String, String>>) -> Schema {
-        Schema { fields }
+    pub fn new(fields: Vec<HashMap<String, String>>) -> Result<Schema, String> {
+        Ok(Schema { fields })
     }
 
-    pub fn parse_from_bytes(schema_bytes: &[u8]) -> Schema {
+    pub fn parse_from_bytes(schema_bytes: &[u8]) -> Result<Schema, String> {
         let mut fields = Vec::new();
         let mut cursor = 0;
         
@@ -33,7 +33,7 @@ impl Schema {
 
             fields.push(HashMap::from([("name".to_string(), field_name), ("type".to_string(), field_type)]));
         }
-        Schema { fields }
+        Ok(Schema { fields })
     }
 }
 
@@ -47,7 +47,7 @@ pub struct Table {
 
 impl Table {
     // Create a new table, writing to disk and returning memory object
-    pub fn new(name: &str, path: &Path, schema: Schema) -> Table {
+    pub fn new(name: &str, path: &Path, schema: Schema) -> Result<Table, String> {
         // Create table directory
         std::fs::create_dir_all(path).unwrap();
         
@@ -82,12 +82,13 @@ impl Table {
         meta_file.write_all(&meta_info).unwrap();
         
         // Return memory object.
-        Table {
+        Ok(Table {
             name: name.to_string(),
             schema,
             path: path.to_path_buf(),
             next_rowid: 0
-        }
+        })
+
     }
     
     // Create memory object from disk
@@ -107,7 +108,7 @@ impl Table {
 
         Ok(Table {
             name,
-            schema,
+            schema: schema?,
             path: path.to_path_buf(),
             next_rowid
         })
